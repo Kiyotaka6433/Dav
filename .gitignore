@@ -1,0 +1,9 @@
+# Ignore files exceeding GitHub's 100MB single-file limit
+original_merged_uncleaned.csv
+prac 2/master_dataset_pruned.csv
+prac 2/prices_fundamentals_joined.csv
+
+# Python & System Cache
+__pycache__/
+*.pyc
+.DS_Store
