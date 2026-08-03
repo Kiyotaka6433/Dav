@@ -17,8 +17,16 @@ OUTPUT_PDF = os.path.join(PRAC3_DIR, "eda_outlier_report.pdf")
 
 print("=== Starting Practical 3 Earth-Tone PDF Generator ===")
 
+target_pdf = OUTPUT_PDF
+try:
+    with open(target_pdf, 'ab'):
+        pass
+except PermissionError:
+    target_pdf = os.path.join(PRAC3_DIR, "eda_outlier_report_updated.pdf")
+    print(f"Notice: Primary PDF file is open in a viewer. Generating output to: {target_pdf}")
+
 doc = SimpleDocTemplate(
-    OUTPUT_PDF, pagesize=A4,
+    target_pdf, pagesize=A4,
     leftMargin=1.8*cm, rightMargin=1.8*cm,
     topMargin=1.8*cm, bottomMargin=1.8*cm
 )
@@ -77,6 +85,7 @@ story.append(Paragraph("<b>Core Audit Takeaways:</b>", body_style))
 story.append(Paragraph("• <b>Distribution Asymmetry:</b> Financial metrics (Revenue, Assets, Net Income, Volume) exhibit extreme positive skewness (+5.20 to +13.13), causing the arithmetic Mean to be strongly pulled away from the Median.", bullet_style))
 story.append(Paragraph("• <b>Midrange Vulnerability:</b> The Midrange statistic, defined as (Min + Max) / 2, is highly unstable for financial variables. For instance, Total Assets has a Median of $14.93 Billion but a Midrange of $1.285 Trillion due to mega-cap banking institutions.", bullet_style))
 story.append(Paragraph("• <b>Outlier Detection Disparity:</b> Tukey's IQR Method flags 6.06% to 12.43% of data as outliers based on quartile boundaries, whereas the Z-Score Method (|Z| > 3.0) flags only 1.30% to 2.27% because heavy tails inflate the sample standard deviation.", bullet_style))
+story.append(Paragraph("• <b>Log Normalization Efficacy:</b> Applying log1p transformation to positive financial metrics reduces skewness dramatically (e.g. Total Revenue skewness drops from +6.31 to +0.36), achieving near-Gaussian symmetry for machine learning pipelines.", bullet_style))
 story.append(Spacer(1, 6))
 
 # --- Section 2: 5-Number Summary Table ---
@@ -90,7 +99,6 @@ intro_sec2 = (
 )
 story.append(Paragraph(intro_sec2, body_style))
 
-# Load metrics from CSV
 metrics_df = pd.read_csv(SUMMARY_CSV)
 
 table_data = [[
@@ -150,10 +158,9 @@ t1.setStyle(TableStyle([
 story.append(t1)
 story.append(Spacer(1, 8))
 
-# Add Boxplots Image
 fig1_file = os.path.join(PLOTS_DIR, "fig1_5num_summary_boxplots.png")
 if os.path.exists(fig1_file):
-    img1 = Image(fig1_file, width=17.2*cm, height=9.5*cm)
+    img1 = Image(fig1_file, width=17.2*cm, height=9.2*cm)
     story.append(img1)
     story.append(Spacer(1, 8))
 
@@ -173,7 +180,7 @@ story.append(Spacer(1, 6))
 
 fig3_file = os.path.join(PLOTS_DIR, "fig3_skewness_distributions.png")
 if os.path.exists(fig3_file):
-    img3 = Image(fig3_file, width=16.5*cm, height=7.5*cm)
+    img3 = Image(fig3_file, width=16.5*cm, height=7.2*cm)
     story.append(img3)
     story.append(Spacer(1, 8))
 
@@ -188,7 +195,6 @@ outlier_intro = (
 )
 story.append(Paragraph(outlier_intro, body_style))
 
-# Outlier Comparison Table
 table2_data = [[
     Paragraph("Feature Name", th_style),
     Paragraph("Valid Records", th_style),
@@ -243,20 +249,77 @@ story.append(Spacer(1, 8))
 
 fig2_file = os.path.join(PLOTS_DIR, "fig2_outlier_comparison.png")
 if os.path.exists(fig2_file):
-    img2 = Image(fig2_file, width=16.8*cm, height=8.0*cm)
+    img2 = Image(fig2_file, width=16.8*cm, height=7.8*cm)
     story.append(img2)
     story.append(Spacer(1, 8))
 
-# --- Section 5: Practical Guidance ---
-story.append(Paragraph("5. Practical Guidance & Domain Takeaways", sec_title))
+# --- Section 5: Log Transformation & ML Scaling Matrix ---
+story.append(Paragraph("5. Log Transformation & Feature Scaling Strategy Matrix", sec_title))
 story.append(HRFlowable(width="100%", thickness=0.8, color=COLOR_LINE, spaceBefore=1, spaceAfter=5))
 
-guidance_text = (
-    "<b>1. Why Z-Score Fails on Skewed Financial Data:</b> The Z-score method assumes Gaussian symmetry. In right-skewed data, extreme top-tier values inflate the sample standard deviation, pushing the 3-sigma fence artificially high and causing false negatives.<br/>"
-    "<b>2. Why Tukey IQR is Superior:</b> Tukey's method uses rank-based quantiles (Q1 and Q3) with a 25% breakdown point. Upper-tail extreme values do not stretch the IQR width, ensuring consistent anomaly flagging.<br/>"
-    "<b>3. Domain Reality (Anomalies vs Structural Heavyweights):</b> Outliers like Apple's Net Income or JPMorgan's Total Assets represent legitimate economic scale rather than data entry errors. They should be handled using robust scaling (RobustScaler, Log transform) rather than deletion."
+ml_intro = (
+    "Our statistical findings directly govern feature engineering choices for predictive modeling pipelines. "
+    "Applying logarithmic transformation compresses heavy right tails and restores bell-curve symmetry:"
 )
-story.append(Paragraph(guidance_text, body_style))
+story.append(Paragraph(ml_intro, body_style))
+
+story.append(Paragraph("• <b>Total Revenue:</b> Raw Skewness = +6.31 → Log1p Skewness = <b>+0.36</b> (Near-perfect symmetry)", bullet_style))
+story.append(Paragraph("• <b>Cash & Cash Equivalents:</b> Raw Skewness = +9.65 → Log1p Skewness = <b>-0.12</b> (Symmetric bell curve)", bullet_style))
+story.append(Paragraph("• <b>Total Assets:</b> Raw Skewness = +8.44 → Log1p Skewness = <b>+0.70</b> (Substantial skew reduction)", bullet_style))
+story.append(Spacer(1, 6))
+
+fig4_file = os.path.join(PLOTS_DIR, "fig4_log_transformation_impact.png")
+if os.path.exists(fig4_file):
+    img4 = Image(fig4_file, width=16.8*cm, height=6.8*cm)
+    story.append(img4)
+    story.append(Spacer(1, 8))
+
+# Scaling Matrix Table
+ml_table_data = [[
+    Paragraph("Feature Group", th_style),
+    Paragraph("Raw Skew", th_style),
+    Paragraph("Tukey Outliers", th_style),
+    Paragraph("Recommended Scaler / Transform", th_style),
+    Paragraph("Pipeline Engineering Rationale", th_style)
+], [
+    Paragraph("Monetary Financials<br/>(Revenue, Assets, Cash)", tb_left),
+    Paragraph("+6.0 to +9.6", tb_style),
+    Paragraph("11.2% - 12.4%", tb_style),
+    Paragraph("<b>Log1p Transform + RobustScaler</b>", tb_left),
+    Paragraph("Log1p compresses order-of-magnitude scale disparities; RobustScaler centers on Median and scales by IQR.", tb_left)
+], [
+    Paragraph("Trading Volume<br/>(volume)", tb_left),
+    Paragraph("+13.13", tb_style),
+    Paragraph("9.69%", tb_style),
+    Paragraph("<b>Log1p Transform + StandardScaler</b>", tb_left),
+    Paragraph("Log removes earnings-day volume spikes; StandardScaler normalizes variance for neural net / gradient descent convergence.", tb_left)
+], [
+    Paragraph("Financial Ratios<br/>(Current Ratio, EPS)", tb_left),
+    Paragraph("+0.7 to +2.4", tb_style),
+    Paragraph("5.5% - 6.3%", tb_style),
+    Paragraph("<b>RobustScaler</b>", tb_left),
+    Paragraph("Centers median at 0 and scales by IQR without distorting bounded financial ratios.", tb_left)
+], [
+    Paragraph("Tree-Based Models<br/>(XGBoost, Random Forest)", tb_left),
+    Paragraph("Any Skew", tb_style),
+    Paragraph("Any %", tb_style),
+    Paragraph("<b>Raw Unscaled Features</b>", tb_left),
+    Paragraph("Decision tree splits are monotonic scale-invariant; upper-tail outliers do not affect greedy split criteria.", tb_left)
+]]
+
+col_widths_ml = [2.8*cm, 1.5*cm, 1.8*cm, 3.6*cm, 7.5*cm]
+t_ml = Table(ml_table_data, colWidths=col_widths_ml, repeatRows=1)
+t_ml.setStyle(TableStyle([
+    ('BACKGROUND', (0,0), (-1,0), COLOR_ACCENT),
+    ('TEXTCOLOR', (0,0), (-1,0), white),
+    ('ALIGN', (0,0), (-1,-1), 'CENTER'),
+    ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+    ('BOTTOMPADDING', (0,0), (-1,-1), 4),
+    ('TOPPADDING', (0,0), (-1,-1), 4),
+    ('ROWBACKGROUNDS', (0,1), (-1,-1), [COLOR_BG_LIGHT, COLOR_CARD_BG]),
+    ('GRID', (0,0), (-1,-1), 0.4, COLOR_LINE),
+]))
+story.append(t_ml)
 story.append(Spacer(1, 10))
 
 # Sign-off block
@@ -270,6 +333,5 @@ signoff_table.setStyle(TableStyle([
 ]))
 story.append(signoff_table)
 
-# Build Document
 doc.build(story)
-print(f"PDF Successfully Generated: {OUTPUT_PDF}")
+print(f"PDF Successfully Generated: {target_pdf}")

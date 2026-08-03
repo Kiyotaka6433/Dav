@@ -19,6 +19,7 @@ The primary objective of Practical 3 is to evaluate the underlying distribution 
 3. **Outlier Method Sensitivity**: 
    - **Tukey's IQR Method** flags **6.06% to 12.43%** of data points as outliers because its boundaries are anchored to quartile widths.
    - **Z-Score Method (|Z| > 3.0)** flags only **1.30% to 2.27%** of data points because the sample standard deviation is inflated by heavy tails, artificially stretching the 3-sigma thresholds.
+4. **Log Normalization Efficacy**: Applying a `log1p` transformation to positive financial metrics reduces skewness dramatically (e.g. `Total Revenue` skewness drops from **+6.31 to +0.36**), restoring approximate Gaussian symmetry required for regression and gradient-based learning algorithms.
 
 ---
 
@@ -102,14 +103,32 @@ The Z-score method assumes that data follows a symmetric normal distribution. In
 ### 5.2 Why Tukey's IQR Method is Preferred for Financial Pipelines
 Tukey's IQR method is **non-parametric** and relies strictly on rank statistics ($Q_1$ and $Q_3$), which have a 25% breakdown point. Extreme values in the upper 5% of the data do not expand the IQR width. Thus, Tukey's method maintains a stable threshold and accurately captures structural sector differences.
 
-### 5.3 Domain Context: Anomalies vs. Structural Heavyweights
-In financial analytics, outliers flagged by Tukey's method (e.g. Apple's Net Income or JPMorgan's Total Assets) are **not data entry errors**. They represent structural economic realities of S&P 500 capitalization weights. Therefore:
-- Outliers should **not** be deleted arbitrarily.
-- Non-linear tree algorithms (Random Forest, XGBoost) or robust scaling transforms (RobustScaler, Log1p) should be applied prior to model training.
+---
+
+## 6. Log Transformation & Machine Learning Scaling Matrix
+
+Based on our empirical 5-number summary and outlier results, raw financial features require specific preprocessing steps before feeding into machine learning algorithms.
+
+### 6.1 Log Transformation Skewness Reduction
+By applying a logarithmic transformation $y = \log(x + 1)$, right-skewed feature distributions are compressed, producing near-Gaussian bell curves:
+
+- **`Total Revenue`**: Raw Skewness = **+6.31** $\rightarrow$ Log Skewness = **+0.36**
+- **`Cash and Cash Equivalents`**: Raw Skewness = **+9.65** $\rightarrow$ Log Skewness = **-0.12**
+- **`Total Assets`**: Raw Skewness = **+8.44** $\rightarrow$ Log Skewness = **+0.70**
+- **`Current Ratio`**: Raw Skewness = **+2.48** $\rightarrow$ Log Skewness = **+0.07**
+
+### 6.2 Preprocessing & Feature Scaler Decision Matrix
+
+| Feature Type / Category | Raw Skewness | Tukey Outliers | Recommended Scaler / Transform | Pipeline Justification |
+| :--- | :--- | :--- | :--- | :--- |
+| **Monetary Fundamentals** (`Revenue`, `Assets`, `Cash`) | High (+6.0 to +9.6) | 11.2% - 12.4% | **Log1p Transform + RobustScaler** | Compresses 4-order magnitude scale differences; RobustScaler centers on Median and scales by IQR. |
+| **Market Trading Volumes** (`volume`) | Extreme (+13.13) | 9.69% | **Log1p Transform + StandardScaler** | Log transform removes heavy right tail; StandardScaler normalizes volume variance for gradient descent. |
+| **Financial Ratios** (`Current Ratio`, `EPS`) | Moderate (+0.7 to +2.4) | 5.5% - 6.3% | **RobustScaler** | Directly centers median at 0 and scales by IQR without distorting ratio relationships. |
+| **Tree-Based Ensembles** (XGBoost, Random Forest) | Any Skewness | Any Outlier % | **Raw Unscaled Features** | Decision tree splits are monotonic scale-invariant; outliers do not affect greedy threshold selection. |
 
 ---
 
-## 6. Author Sign-Off & Verification
+## 7. Author Sign-Off & Verification
 
 This report and its accompanying numerical summaries were generated from `master_dataset_pruned.csv` and verified using `prac 3/generate_prac3_analysis.py`.
 
