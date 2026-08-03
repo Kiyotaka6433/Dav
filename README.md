@@ -11,7 +11,7 @@
 
 This repository contains the end-to-end Data Analysis and Visualization (DAV) coursework project and practical submissions analyzing historical **S&P 500 market pricing and corporate fundamental metrics**.
 
-The primary goal of this repository is to build a mathematically rigorous quantitative pipeline that eliminates **statistical look-ahead bias**, handles **collinearity**, prunes high-dimensional financial features, and provides deep insights into corporate health and market return predictors.
+The primary goal of this repository is to build a mathematically rigorous quantitative pipeline that eliminates **statistical look-ahead bias**, handles **collinearity**, prunes high-dimensional financial features, provides 5-number summaries, and evaluates non-parametric vs parametric outlier detection methods.
 
 ---
 
@@ -30,13 +30,14 @@ The primary goal of this repository is to build a mathematically rigorous quanti
 │   ├── data_cleaning_and_merging.py    # Raw dataset merging & initial data cleaning script
 │   ├── generate_prac2_pdf.py           # Automated ReportLab PDF generator script with plots
 │   └── plots/                          # Generated high-resolution diagnostic visualizations
-│       ├── fig1_collinearity.png
-│       ├── fig2_missingness.png
-│       ├── fig3_reduction.png
-│       ├── fig4_sector_balance.png
-│       ├── fig5_asof_timeline.png
-│       ├── fig6_retained_corr.png
-│       └── fig7_tukey_iqr_outliers.png
+│
+├── prac 3/
+│   ├── eda_outlier_report.md           # Practical 3 Technical Report (5-Num Summary & Outliers)
+│   ├── eda_outlier_report.pdf          # Formatted Earth-Tone PDF Report
+│   ├── generate_prac3_analysis.py      # 5-number summary & outlier comparison script
+│   ├── generate_prac3_pdf.py           # ReportLab Earth-Tone PDF generator script
+│   ├── prac3_summary_metrics.csv       # Exported statistical summary metrics
+│   └── plots/                          # Earth-tone diagnostic plots (boxplots, comparison charts)
 │
 ├── .gitignore
 └── README.md
@@ -57,6 +58,13 @@ The primary goal of this repository is to build a mathematically rigorous quanti
   2. **Collinearity Elimination:** Removed exact accounting equation duplicates ($r = 1.000$) such as `Total Liabilities & Equity` $\equiv$ `Total Assets`, and near-100% correlated income metrics ($r > 0.995$).
   3. **90-Day Filing Lag Shift:** Applied a strict +90 calendar day temporal shift on corporate fundamental announcement dates before merging with daily stock pricing using `pd.merge_asof()`, resolving statistical look-ahead data leakage.
   4. **Tukey IQR Anomaly Audit:** Identified extreme structural financial outliers in metrics like `Net Income` and `Total Assets` caused by mega-cap market capitalization disparities.
+
+### Practical 3: 5-Number Summary, Central Tendency & Outlier Method Comparison
+* **Key Statistical Analyses:**
+  1. **5-Number Summaries:** Computed $Min, Q_1, Median, Q_3, Max$ along with Mean, Std Dev, Mode, Midrange, and Skewness across core financial and trading metrics.
+  2. **Central Tendency Audit:** Evaluated the vulnerability of the Midrange statistic to extreme maximums (e.g. `Total Assets` Midrange = $1.285 Trillion vs Median = $14.93 Billion).
+  3. **Outlier Method Comparison:** Compared **Tukey's IQR Method** ($Q_1 - 1.5 \times IQR$ to $Q_3 + 1.5 \times IQR$) against the **Z-Score Method** ($|Z| > 3.0$). Demonstrates how Tukey IQR correctly maintains rank-based quartile boundaries, whereas Z-score under-reports outliers due to variance inflation from heavy tails.
+  4. **Earth-Tone Design:** PDF report and plots formatted strictly in natural earth tones (terracotta, saddle brown, olive, and sand) with clean mathematical typography.
 
 ---
 
