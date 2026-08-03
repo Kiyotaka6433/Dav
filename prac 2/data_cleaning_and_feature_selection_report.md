@@ -1,5 +1,6 @@
 # PRACTICAL-2: DATA CLEANING, FEATURE SELECTION & ANOMALY AUDIT REPORT
 
+**Authors:** Aryan Mori (24BCE119), Shlok Vaishnav (24BCE135)  
 **Pipeline Focus:** Feature Pruning, Collinearity Reduction, 90-Day Filing Lag Shift, Tukey IQR Audit & As-Of Merging  
 **Subject:** Data Analysis & Visualization  
 **Subject Code:** 2CS504CC23  

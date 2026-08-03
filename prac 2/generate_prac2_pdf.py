@@ -217,7 +217,7 @@ story = []
 cover_data = [
     [Paragraph("PRACTICAL-2: DATA CLEANING, FEATURE SELECTION & ANOMALY AUDIT REPORT", title_style)],
     [Paragraph("Feature Pruning, Collinearity Reduction, 90-Day Lag Shift, Tukey IQR Audit & As-Of Merging", subtitle_style)],
-    [Paragraph("Nirma University • B.Tech CSE Semester-IV • Subject: Data Analysis & Visualization", info_style)]
+    [Paragraph("<b>Authors:</b> Aryan Mori (24BCE119), Shlok Vaishnav (24BCE135)<br/>Nirma University • B.Tech CSE Semester-IV • Subject: Data Analysis & Visualization", info_style)]
 ]
 cover_table = Table(cover_data, colWidths=[17.4*cm])
 cover_table.setStyle(TableStyle([

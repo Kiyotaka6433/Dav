@@ -1,7 +1,7 @@
 # DATA ANALYTICS & VISUALIZATION PROJECT REPORT
 
-**Name:** Aryan & Project Team  
-**Roll No:** 24BCE501 & 24BCE502  
+**Name:** Aryan Mori & Shlok Vaishnav  
+**Roll No:** 24BCE119 & 24BCE135  
 **Subject:** Data Analysis and Visualization  
 
 ## Project Title

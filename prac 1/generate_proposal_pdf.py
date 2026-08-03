@@ -49,8 +49,8 @@ tb_bold  = S("P1TBB", styles['Normal'], fontSize=8, textColor=DARK_NAVY, fontNam
 story = []
 
 # ── HEADER & TITLE ──
-story.append(Paragraph("<b>Name:</b> Aryan & Project Team", S("hdr1", styles['Normal'], fontSize=10, textColor=DARK_TEXT, fontName="Helvetica-Bold")))
-story.append(Paragraph("<b>Roll No:</b> 24BCE501 & 24BCE502", S("hdr2", styles['Normal'], fontSize=10, textColor=DARK_TEXT, fontName="Helvetica-Bold")))
+story.append(Paragraph("<b>Name:</b> Aryan Mori & Shlok Vaishnav", S("hdr1", styles['Normal'], fontSize=10, textColor=DARK_TEXT, fontName="Helvetica-Bold")))
+story.append(Paragraph("<b>Roll No:</b> 24BCE119 & 24BCE135", S("hdr2", styles['Normal'], fontSize=10, textColor=DARK_TEXT, fontName="Helvetica-Bold")))
 story.append(Paragraph("<b>Subject:</b> Data Analysis and Visualization", S("hdr3", styles['Normal'], fontSize=10, textColor=DARK_TEXT, fontName="Helvetica-Bold")))
 story.append(Spacer(1, 0.4*cm))
 
